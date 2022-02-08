@@ -1,6 +1,5 @@
+import copy
 import random
-from typing import List, Tuple
-from random import randrange
 
 from utils.robot import Robot as CRobot
 
@@ -25,7 +24,7 @@ class Environment:
     def set_jewel_room(self, room_position: (int, int), sets: bool) -> None:
         self.__grid[room_position[0]][room_position[1]][1] = sets
 
-    def update_robot_positions(self, robot: 'CRobot.Robot', position: (int, int)):
+    def update_robot_positions(self, robot: 'CRobot.Robot', position: list[int]):
         for ID, val in enumerate(self.__robot_positions):
             if robot == (val[0]):
                 val[1] = position
@@ -34,8 +33,8 @@ class Environment:
 
     @property
     def grid(self) -> list[list[list[bool]]]:
-        return self.__grid
+        return copy.deepcopy(self.__grid)
 
     @property
     def robot_positions(self) -> set:
-        return self.__robot_positions
+        return copy.deepcopy(self.__robot_positions)

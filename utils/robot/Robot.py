@@ -3,7 +3,7 @@ from utils.robot.RobotActuator import RobotActuator
 
 
 class Robot:
-    def __init__(self, sensor: RobotSensor, starting_position: (int, int)):
+    def __init__(self, sensor: RobotSensor, starting_position: list[int]):
         self.position = starting_position
         self.robotSensor = sensor
         self.robotActuator = RobotActuator(sensor.tracked_environment)

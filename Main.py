@@ -8,7 +8,7 @@ from utils.environment import Environment as CEnv
 # Environment is global because it exists over anything else
 global env
 
-ROBOT_STARTING_POSITION = (0, 0)
+ROBOT_STARTING_POSITION = [0, 0]
 ENVIRONMENT_WIDTH = 5
 ENVIRONMENT_HEIGHT = 5
 
