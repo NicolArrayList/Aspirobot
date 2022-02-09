@@ -12,7 +12,6 @@ ROBOT_STARTING_POSITION = (0, 0)
 ENVIRONMENT_WIDTH = 5
 ENVIRONMENT_HEIGHT = 5
 
-
 def main():
     global env
 
