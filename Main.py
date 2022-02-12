@@ -27,6 +27,24 @@ def main():
     t_env.start()
     t_robot.start()
 
+""" pour le a_star
+    maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+
+    start = (0, 0)
+    end = (7, 6)
+
+    path = astar(maze, start, end)
+    print(path)
+"""
 
 # Here is the robot thread. It is in charge of a single robot living in the environment.
 # So starting multiple threads with that function will make multiple robots living in the same environment !
@@ -62,6 +80,7 @@ def start_thread_environment() -> None:
         # print(env.robot_positions) # Position des robots sur dans la maison
         # Here is a little delay to see what happens
         time.sleep(1)
+
 
 
 # Here is the starting point of the app !
