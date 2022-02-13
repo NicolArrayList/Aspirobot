@@ -12,10 +12,10 @@ class Room:
         return self.__posX, self.__posY
 
     def set_dust_room(self, set_dust_to: bool) -> None:
-        self.__dust = set
+        self.__dust = set_dust_to
 
     def set_jewel_room(self, set_jewel_to: bool) -> None:
-        self.__jewel = set
+        self.__jewel = set_jewel_to
 
     def has_jewel_or_dust(self):
         return self.has_jewel() or self.has_dust()

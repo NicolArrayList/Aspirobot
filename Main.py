@@ -1,5 +1,6 @@
 import threading
 import time
+import random
 
 from utils.robot import Robot as CRobot
 from utils.robot import RobotSensor as CRobotSensor
@@ -17,7 +18,7 @@ def main():
     global env
 
     # Here we create our Environment before anything else using the global "env" variable
-    env = CEnv.Environment((ENVIRONMENT_WIDTH, ENVIRONMENT_HEIGHT))
+    env = CEnv.Environment(env_size=(ENVIRONMENT_WIDTH, ENVIRONMENT_HEIGHT), dirty=True)
 
     # Creating threads
     t_env = threading.Thread(target=start_thread_environment)
@@ -78,8 +79,10 @@ def start_thread_environment() -> None:
         # Environment updates himself to add dust or jewel
         env.update_environment()
         # print(env.robot_positions) # Position des robots sur dans la maison
-        # Here is a little delay to see what happens
-        time.sleep(1)
+        # Here is a little random delay to see what happens
+        delay = random.randint(10, 20)
+
+        time.sleep(delay)
 
 
 # Here is the starting point of the app !

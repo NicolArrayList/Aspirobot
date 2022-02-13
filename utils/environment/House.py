@@ -15,3 +15,7 @@ class House:
 
     def get_height(self):
         return self.__height
+
+    def __str__(self):
+        for i in range(self.__width):
+            print(self.__grid[i] + "\n")
