@@ -28,7 +28,7 @@ canvas.pack()
 canvas.bind('<Configure>', create_grid)
 
 # Loading the image
-img = (Image.open("aspirobot.png"))
+img = (Image.open("dust-overlay.png"))
 
 # Resizing the image
 resized_image = img.resize((80, 80), Image.ANTIALIAS)
