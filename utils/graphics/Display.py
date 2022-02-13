@@ -1,5 +1,4 @@
 from tkinter import *
-
 from PIL import Image, ImageTk
 
 
@@ -17,7 +16,7 @@ class Display:
         self.imgDustDiamonds = ImageTk.PhotoImage(
             (Image.open("diamonds_and_dust.png")).resize((80, 80), Image.ANTIALIAS))
 
-        self.grid = None
+        self.grid = [[0 for _ in range(self.height)] for _ in range(self.width)]
 
     def create_grid(self, event=None):
         w = self.canvas.winfo_width()
@@ -39,18 +38,19 @@ class Display:
         self.canvas = Canvas(self.window, width=self.width * 100, height=self.height * 100)
         self.canvas.pack()
 
+        # Call the function to create the grid
         self.canvas.bind('<Configure>', self.create_grid)
 
         self.window.resizable(False, False)
 
     def update_display(self):
-        self.grid = None;
         for i in range(self.width):
             for j in range(self.height):
-                self.canvas.create_image(50 + 100 * i, 50 + 100 * j, anchor=CENTER, image=self.grid[i][j])
+                self.canvas.delete(self.grid[i][j])
+                # Check the house rooms here
+                self.grid[i][j] = self.canvas.create_image(50 + 100 * i, 50 + 100 * j, anchor=CENTER, image=self.imgDiamonds)
 
-    def test_image(self, posX: int, posY: int):
-        self.canvas.create_image(50 + 100 * posX, 50 + 100 * posY, anchor=CENTER, image=self.grid[posX][posY])
+        # Display aspirobot here
 
     def get_window(self):
         return self.window
