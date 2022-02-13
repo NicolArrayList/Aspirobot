@@ -22,23 +22,34 @@ class Robot:
 
     def observe_environment_with_sensor(self) -> None:
         self.house = self.robotSensor.read_environment()
+        self.position = self.robotSensor.get_robot_position_in_environment(self)
 
     def execute_exploration(self) -> None:
         closest_target_room = self.get_closest_target()
 
         if closest_target_room is not None:
             self.action_plan = self.__astar(closest_target_room.get_room_position())
+        else:
+            self.action_plan = [self.position]
 
-        # print(self.action_plan)
+        print(self.action_plan)
 
     def execute_action_plan(self):
         for position in self.action_plan:
+            print("Desir : go to " + str(position))
             self.robotActuator.robot_move(self, position)
-            time.sleep(1)
+            time.sleep(2)
+
+        self.position = self.robotSensor.get_robot_position_in_environment(self)
+
         if self.house.get_room_at(self.position[0], self.position[1]).has_dust():
+            print("Desir : vacuum !")
             self.robotActuator.aspire(self.position)
         elif self.house.get_room_at(self.position[0], self.position[1]).has_jewel():
+            print("Desir : collect !")
             self.robotActuator.collect(self.position)
+        else:
+            print("Desir : nothing...")
 
     def get_closest_target(self) -> Room:
         closest_target = None
@@ -55,7 +66,7 @@ class Robot:
     def distance_to_room(self, room: Room) -> float:
         room_pos = room.get_room_position()
         # Euclidian distance without square root because distance order is conserved (with positive int)
-        return (room_pos[0] - self.position[0] ** 2) + (room_pos[1] - self.position[1] ** 2)
+        return ((room_pos[0] - self.position[0]) ** 2) + ((room_pos[1] - self.position[1]) ** 2)
 
     def __astar(self, end_position):
         """Returns a list of tuples as a path from the given start to the given end in the given maze"""
@@ -65,7 +76,7 @@ class Robot:
         # G is the distance between the current node and the start node.
         # H is the heuristic — estimated distance from the current node to the end node.
 
-        # Getting start and end positions
+        # Getting start
         start_position = self.position
 
         # Creating nodes

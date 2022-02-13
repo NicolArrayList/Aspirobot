@@ -7,3 +7,6 @@ class RobotSensor:
 
     def read_environment(self):
         return self.tracked_environment.house
+
+    def get_robot_position_in_environment(self, robot):
+        return self.tracked_environment.get_robot_position(robot)
