@@ -38,6 +38,7 @@ class Display:
         self.canvas = Canvas(self.window, width=self.width * 100, height=self.height * 100)
         self.canvas.pack()
 
+        # Call the function to create the grid
         self.canvas.bind('<Configure>', self.create_grid)
 
         self.window.resizable(False, False)
@@ -47,7 +48,9 @@ class Display:
             for j in range(self.height):
                 self.canvas.delete(self.grid[i][j])
                 # Check the house rooms here
-                self.grid[i][j] = self.canvas.create_image(50 + 100 * i, 50 + 100 * j, anchor=CENTER, image=self.imgAspirobot)
+                self.grid[i][j] = self.canvas.create_image(50 + 100 * i, 50 + 100 * j, anchor=CENTER, image=self.imgDiamonds)
+
+        # Display aspirobot here
 
     def get_window(self):
         return self.window
