@@ -1,5 +1,7 @@
 from tkinter import *
 from PIL import Image, ImageTk
+from utils.environment.Environment import Environment
+from utils.environment.House import House
 
 
 class Display:
@@ -10,13 +12,16 @@ class Display:
         self.window = Tk()
         self.canvas = None
 
-        self.imgAspirobot = ImageTk.PhotoImage((Image.open("aspirobot.png")).resize((80, 80), Image.ANTIALIAS))
-        self.imgDust = ImageTk.PhotoImage((Image.open("dust.png")).resize((80, 80), Image.ANTIALIAS))
-        self.imgDiamonds = ImageTk.PhotoImage((Image.open("diamonds.png")).resize((80, 80), Image.ANTIALIAS))
+        self.imgAspirobot = ImageTk.PhotoImage(
+            (Image.open("utils/graphics/aspirobot.png")).resize((80, 80), Image.ANTIALIAS))
+        self.imgDust = ImageTk.PhotoImage((Image.open("utils/graphics/dust.png")).resize((80, 80), Image.ANTIALIAS))
+        self.imgDiamonds = ImageTk.PhotoImage(
+            (Image.open("utils/graphics/diamonds.png")).resize((80, 80), Image.ANTIALIAS))
         self.imgDustDiamonds = ImageTk.PhotoImage(
-            (Image.open("diamonds_and_dust.png")).resize((80, 80), Image.ANTIALIAS))
+            (Image.open("utils/graphics/diamonds_and_dust.png")).resize((80, 80), Image.ANTIALIAS))
 
         self.grid = [[0 for _ in range(self.height)] for _ in range(self.width)]
+        self.displayRobot = None
 
     def create_grid(self, event=None):
         w = self.canvas.winfo_width()
@@ -43,14 +48,27 @@ class Display:
 
         self.window.resizable(False, False)
 
-    def update_display(self):
+    def update_display(self, env: Environment):
+        house: House = env.house
+        posRobot = env.robot_positions[0]
+
         for i in range(self.width):
             for j in range(self.height):
                 self.canvas.delete(self.grid[i][j])
-                # Check the house rooms here
-                self.grid[i][j] = self.canvas.create_image(50 + 100 * i, 50 + 100 * j, anchor=CENTER, image=self.imgDiamonds)
+                if house.get_room_at(i, j).has_jewel_and_dust():
+                    self.grid[i][j] = self.canvas.create_image(50 + 100 * i, 50 + 100 * j, anchor=CENTER,
+                                                               image=self.imgDustDiamonds)
+                elif house.get_room_at(i, j).has_jewel():
+                    self.grid[i][j] = self.canvas.create_image(50 + 100 * i, 50 + 100 * j, anchor=CENTER,
+                                                               image=self.imgDiamonds)
+                elif house.get_room_at(i, j).has_dust():
+                    self.grid[i][j] = self.canvas.create_image(50 + 100 * i, 50 + 100 * j, anchor=CENTER,
+                                                               image=self.imgDust)
 
         # Display aspirobot here
+        self.canvas.delete(self.displayRobot)
+        self.displayRobot = self.canvas.create_image(50 + 100 * posRobot[1][0], 50 + 100 * posRobot[1][1], anchor=CENTER,
+                                                     image=self.imgAspirobot)
 
     def get_window(self):
         return self.window

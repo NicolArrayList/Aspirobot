@@ -2,30 +2,40 @@ import threading
 import time
 import random
 
+from utils.graphics.Display import Display
 from utils.robot import Robot as CRobot
 from utils.robot import RobotSensor as CRobotSensor
 from utils.environment import Environment as CEnv
 
 # Environment is global because it exists over anything else
-global env
+global env, display
 
 ROBOT_STARTING_POSITION = [0, 0]
 ENVIRONMENT_WIDTH = 5
 ENVIRONMENT_HEIGHT = 5
 
 def main():
-    global env
+    global env, display
+
+    # Create the display window
+    display = Display(ENVIRONMENT_WIDTH, ENVIRONMENT_HEIGHT)
+    display.create_window()
 
     # Here we create our Environment before anything else using the global "env" variable
-    env = CEnv.Environment(env_size=(ENVIRONMENT_WIDTH, ENVIRONMENT_HEIGHT), dirty=True)
+    env = CEnv.Environment((ENVIRONMENT_WIDTH, ENVIRONMENT_HEIGHT), dirty=True)
 
     # Creating threads
     t_env = threading.Thread(target=start_thread_environment)
     t_robot = threading.Thread(target=start_thread_robot)
+    t_display = threading.Thread(target=start_thread_display)
 
     # Starting threads !
     t_env.start()
     t_robot.start()
+    t_display.start()
+
+    # We have to put this line here to be able to update the grid
+    display.get_window().mainloop()
 
 
 """ pour le a_star
@@ -77,11 +87,18 @@ def start_thread_environment() -> None:
     while True:
         # Environment updates himself to add dust or jewel
         env.update_environment()
-        # print(env.robot_positions) # Position des robots sur dans la maison
-        # Here is a little random delay to see what happens
-        delay = random.randint(10, 20)
 
+        # Here is a little delay to see what happens
+        delay = random.randint(5, 10)
         time.sleep(delay)
+
+
+def start_thread_display() -> None:
+    global env, display
+
+    while True:
+        display.update_display(env)
+        time.sleep(0.5)
 
 
 # Here is the starting point of the app !

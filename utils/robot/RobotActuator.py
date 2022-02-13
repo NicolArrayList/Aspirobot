@@ -8,6 +8,7 @@ class RobotActuator:
 
     def aspire(self, position: list[int]) -> None:
         self.env.set_dust_room(position, False)
+        self.env.set_jewel_room(position, False)
         print(str(self.env))
 
     def collect(self, position: list[int]) -> None:

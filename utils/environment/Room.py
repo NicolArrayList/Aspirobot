@@ -20,6 +20,9 @@ class Room:
     def has_jewel_or_dust(self):
         return self.has_jewel() or self.has_dust()
 
+    def has_jewel_and_dust(self):
+        return self.has_jewel() and self.has_dust()
+
     def has_jewel(self):
         return self.__jewel
 
