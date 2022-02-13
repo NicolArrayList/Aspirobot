@@ -6,4 +6,4 @@ class RobotSensor:
         self.tracked_environment = environment_to_track
 
     def read_environment(self):
-        return self.tracked_environment.grid
+        return self.tracked_environment.house

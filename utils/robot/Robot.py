@@ -1,43 +1,86 @@
+import time
+
+from utils.environment.House import House
+from utils.node.Node import Node
+
 from utils.robot.RobotSensor import RobotSensor
 from utils.robot.RobotActuator import RobotActuator
+
+from utils.environment.Room import Room
 
 
 class Robot:
     def __init__(self, sensor: RobotSensor, starting_position: list[int]):
-        self.position = starting_position
         self.robotSensor = sensor
         self.robotActuator = RobotActuator(sensor.tracked_environment)
-        self.grid = None
+        self.house: House = None
+
+        self.position = starting_position
+        self.action_plan = []
 
         self.robotActuator.robot_move(self, self.position)
 
     def observe_environment_with_sensor(self) -> None:
-        self.grid = self.robotSensor.read_environment()
+        self.house = self.robotSensor.read_environment()
 
-    def astar(maze, start, end):
+    def execute_exploration(self) -> None:
+        closest_target_room = self.get_closest_target()
+
+        if closest_target_room is not None:
+            self.action_plan = self.__astar(closest_target_room.get_room_position())
+
+        # print(self.action_plan)
+
+    def execute_action_plan(self):
+        for position in self.action_plan:
+            self.robotActuator.robot_move(self, position)
+            time.sleep(1)
+        if self.house.get_room_at(self.position[0], self.position[1]).has_dust():
+            self.robotActuator.aspire(self.position)
+        elif self.house.get_room_at(self.position[0], self.position[1]).has_jewel():
+            self.robotActuator.collect(self.position)
+
+    def get_closest_target(self) -> Room:
+        closest_target = None
+        for x in range(self.house.get_width()):
+            for y in range(self.house.get_height()):
+                if self.house.get_room_at(x, y).has_jewel_or_dust():
+                    current_room = self.house.get_room_at(x, y)
+                    if closest_target is None:
+                        closest_target = current_room
+                    elif self.distance_to_room(current_room) <= self.distance_to_room(closest_target):
+                        closest_target = current_room
+        return closest_target
+
+    def distance_to_room(self, room: Room) -> float:
+        room_pos = room.get_room_position()
+        # Euclidian distance without square root because distance order is conserved (with positive int)
+        return (room_pos[0] - self.position[0] ** 2) + (room_pos[1] - self.position[1] ** 2)
+
+    def __astar(self, end_position):
         """Returns a list of tuples as a path from the given start to the given end in the given maze"""
 
         # Create start and end node
         # F is the total cost of the node.
         # G is the distance between the current node and the start node.
         # H is the heuristic — estimated distance from the current node to the end node.
-        start_node = Node(None, start)
-        start_node.g = start_node.h = start_node.f = 0
-        end_node = Node(None, end)
-        end_node.g = end_node.h = end_node.f = 0
+
+        # Getting start and end positions
+        start_position = self.position
+
+        # Creating nodes
+        start_node = Node(None, start_position)
+        # start_node.g = start_node.h = start_node.f = 0
+        end_node = Node(None, end_position)
+        # end_node.g = end_node.h = end_node.f = 0
 
         # Initialize both open and closed list
         open_list = []
+        # closed_list is useless with a distance metric to get to a unique position
         closed_list = []
 
         # Add the start node
         open_list.append(start_node)
-
-        # ICI TROUVER LA POUSSIERE/BIJOU LE PLUS PROCHE
-
-        # ICI METTRE PRIORITE AU BIJOU SI POUSSIERE A MEME DISTANCE
-
-        # ICI METTRE end_node = case avec poussière/bijou le plus proche
 
         # Loop until you find the end
         while len(open_list) > 0:
@@ -61,21 +104,21 @@ class Robot:
                 while current is not None:
                     path.append(current.position)
                     current = current.parent
-                return path[::-1] # Return reversed path
+                return path[::-1]  # Return reversed path
 
             # Generate children
             children = []
-            for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]: # Adjacent squares
+            for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0)]:  # Adjacent squares
 
                 # Get node position
                 node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
 
                 # Make sure within range
-                if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (len(maze[len(maze)-1]) -1) or node_position[1] < 0:
-                    continue
-
-                # Make sure walkable terrain
-                if maze[node_position[0]][node_position[1]] != 0:
+                if \
+                        node_position[0] > (self.house.get_width() - 1) or \
+                        node_position[1] > (self.house.get_height() - 1) or \
+                        node_position[0] < 0 or \
+                        node_position[1] < 0:
                     continue
 
                 # Create new node
@@ -94,7 +137,8 @@ class Robot:
 
                 # Create the f, g, and h values
                 child.g = current_node.g + 1
-                child.h = ((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2)
+                child.h = ((child.position[0] - end_node.position[0]) ** 2) + \
+                          ((child.position[1] - end_node.position[1]) ** 2)
                 child.f = child.g + child.h
 
                 # Child is already in the open list
@@ -104,4 +148,3 @@ class Robot:
 
                 # Add the child to the open list
                 open_list.append(child)
-
