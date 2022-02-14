@@ -98,7 +98,7 @@ def start_thread_display() -> None:
 
     while True:
         display.update_display(env)
-        time.sleep(0.5)
+        time.sleep(1)
 
 
 # Here is the starting point of the app !

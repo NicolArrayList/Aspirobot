@@ -20,6 +20,12 @@ class Robot:
 
         self.robotActuator.robot_move(self, self.position)
 
+        self.vacuumedDust = 0
+        self.collectedDiamonds = 0
+        self.vacuumedDiamonds = 0
+
+        self.nbIterations = 0
+
     def observe_environment_with_sensor(self) -> None:
         self.house = self.robotSensor.read_environment()
         self.position = self.robotSensor.get_robot_position_in_environment(self)
@@ -32,24 +38,24 @@ class Robot:
         else:
             self.action_plan = [self.position]
 
-        print(self.action_plan)
 
     def execute_action_plan(self):
         for position in self.action_plan:
-            print("Desir : go to " + str(position))
             self.robotActuator.robot_move(self, position)
             time.sleep(2)
 
         self.position = self.robotSensor.get_robot_position_in_environment(self)
 
         if self.house.get_room_at(self.position[0], self.position[1]).has_dust():
-            print("Desir : vacuum !")
             self.robotActuator.aspire(self.position)
+            self.vacuumedDust += 1
+            if self.house.get_room_at(self.position[0], self.position[1]).has_jewel():
+                self.vacuumedDiamonds += 1
         elif self.house.get_room_at(self.position[0], self.position[1]).has_jewel():
-            print("Desir : collect !")
             self.robotActuator.collect(self.position)
-        else:
-            print("Desir : nothing...")
+            self.collectedDiamonds += 1
+
+        self.nbIterations += 1
 
     def get_closest_target(self) -> Room:
         closest_target = None
@@ -127,9 +133,9 @@ class Robot:
                 # Make sure within range
                 if \
                         node_position[0] > (self.house.get_width() - 1) or \
-                        node_position[1] > (self.house.get_height() - 1) or \
-                        node_position[0] < 0 or \
-                        node_position[1] < 0:
+                                node_position[1] > (self.house.get_height() - 1) or \
+                                node_position[0] < 0 or \
+                                node_position[1] < 0:
                     continue
 
                 # Create new node
@@ -159,3 +165,18 @@ class Robot:
 
                 # Add the child to the open list
                 open_list.append(child)
+
+    def get_action_plan(self):
+        return self.action_plan
+
+    def get_vacuumed_dust(self):
+        return self.vacuumedDust
+
+    def get_collected_diamonds(self):
+        return self.collectedDiamonds
+
+    def get_vacuumed_diamonds(self):
+        return self.vacuumedDiamonds
+
+    def get_nb_iterations(self):
+        return self.nbIterations
