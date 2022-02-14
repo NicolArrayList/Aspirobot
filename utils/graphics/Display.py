@@ -1,4 +1,5 @@
 import sys
+from math import sqrt
 from tkinter import *
 from PIL import Image, ImageTk
 from utils.environment.Environment import Environment
@@ -117,16 +118,16 @@ class Display:
                                                               text="Exploration utilisée : Informée", anchor=NW)
 
             self.displayMetric = self.canvas.create_text(20, 650, fill="darkblue", font="Helvetica 10 bold",
-                                                         text="Métrique (distance à l'objet le plus proche) : "
-                                                              "Non utilisée en non informée",
+                                                         text="Métrique (distance euclidienne à l'objet le plus proche) : "
+                                                              "/",
                                                          anchor=NW)
         else:  # Informed exploration metric
             self.displayExploration = self.canvas.create_text(20, 530, fill="darkblue", font="Helvetica 10 bold",
                                                               text="Exploration utilisée : Non informée", anchor=NW)
 
             self.displayMetric = self.canvas.create_text(20, 650, fill="darkblue", font="Helvetica 10 bold",
-                                                         text="Métrique (distance à l'objet le plus proche) : " +
-                                                              str(self.metricValue),
+                                                         text="Métrique (distance euclidienne à l'objet le plus proche) : " + "{:3.2f}".format(current_robot.get_metric())
+                                                              ,
                                                          anchor=NW)
 
         # Display number of iterations done
