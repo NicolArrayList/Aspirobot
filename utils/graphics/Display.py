@@ -1,3 +1,4 @@
+import sys
 from tkinter import *
 from PIL import Image, ImageTk
 from utils.environment.Environment import Environment
