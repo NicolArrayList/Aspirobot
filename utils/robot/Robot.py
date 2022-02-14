@@ -10,7 +10,8 @@ from utils.environment.Room import Room
 
 
 class Robot:
-    def __init__(self, sensor: RobotSensor, starting_position: list[int], max_depth: int = 5):
+    def __init__(self, sensor: RobotSensor, starting_position: list[int],
+                 max_depth: int = 5, max_iteration_before_informed_search: int = 5):
         self.robotSensor = sensor
         self.robotActuator = RobotActuator(sensor.tracked_environment)
         self.house: House = None
@@ -28,21 +29,28 @@ class Robot:
         self.vacuumedDiamonds = 0
 
         self.nbIterations = 0
+        self.maxIteration = max_iteration_before_informed_search
 
     def observe_environment_with_sensor(self) -> None:
         self.house = self.robotSensor.read_environment()
         self.position = self.robotSensor.get_robot_position_in_environment(self)
 
     def execute_exploration(self) -> None:
-        closest_target_room = None  # self.get_closest_target()
 
-        self.action_plan = self.__depth_limited_search()
+        closest_target_room = self.get_closest_target()
 
-        # if closest_target_room is not None:
-        #    self.action_plan = self.__astar(closest_target_room.get_room_position())
-        # else:
-        #    self.action_plan = [self.position]
+        if closest_target_room is None:
+            self.action_plan = [self.position]
+        else:
+            if self.nbIterations < self.maxIteration:
+                self.action_plan = self.__depth_limited_search()
+            else:
+                closest_target_room = self.get_closest_target()
 
+                if closest_target_room is not None:
+                    self.action_plan = self.__astar(closest_target_room.get_room_position())
+                else:
+                    self.action_plan = [self.position]
 
     def execute_action_plan(self):
         for position in self.action_plan:
@@ -89,7 +97,7 @@ class Robot:
 
         start_node = Node(None, self.position)
 
-        action_plan = self.__deep_limited_search_it(start_node, visited_nodes, 0)
+        action_plan = self.__depth_limited_search_it(start_node, visited_nodes, 0)
 
         return action_plan[::-1]
 
@@ -99,8 +107,9 @@ class Robot:
     -> depth parameter is the current depth of exploration
     -> visited_nodes is used to avoid nodes we already went in 
     """
-    def __deep_limited_search_it(self, current_node, visited_nodes, depth):
-        # Make sur not to overpass the max depth
+
+    def __depth_limited_search_it(self, current_node, visited_nodes, depth):
+        # Make sure not to overpass the max depth
         if depth >= self.max_depth:
             return None
 
@@ -108,7 +117,7 @@ class Robot:
         if current_node not in visited_nodes:
             visited_nodes.add(current_node)
 
-            # For each neighbouring room are cases we can explore ( DOWN | UP | RIGHT | LEFT )
+            # Each neighbouring room are cases we can explore ( DOWN | UP | RIGHT | LEFT )
             for new_position in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
 
                 # Here is the node's position we will explore next
@@ -129,9 +138,9 @@ class Robot:
                 if self.house.get_room_at(node_position[0], node_position[1]).has_jewel_or_dust():
                     return [node_position, current_node.position]
 
-                # If it's empty : we recursively call the function to explore what's next to our node
+                # If it's empty : we recursively call the function to explore what's next to this node
                 else:
-                    result_of_search = self.__deep_limited_search_it(new_node, visited_nodes, depth + 1)
+                    result_of_search = self.__depth_limited_search_it(new_node, visited_nodes, depth + 1)
 
                     # Here exploration found something, so we return our node to build the path to our objective
                     if result_of_search is not None:
