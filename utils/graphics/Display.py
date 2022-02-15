@@ -115,7 +115,7 @@ class Display:
         # Display type of exploration and the metric
         if iterationsValue < 5:  # Non Informed exploration (no metric)
             self.displayExploration = self.canvas.create_text(20, 530, fill="darkblue", font="Helvetica 10 bold",
-                                                              text="Exploration utilisée : Informée", anchor=NW)
+                                                              text="Exploration utilisée : Non informée (DLS)", anchor=NW)
 
             self.displayMetric = self.canvas.create_text(20, 650, fill="darkblue", font="Helvetica 10 bold",
                                                          text="Métrique (distance euclidienne à l'objet le plus proche) : "
@@ -123,7 +123,7 @@ class Display:
                                                          anchor=NW)
         else:  # Informed exploration metric
             self.displayExploration = self.canvas.create_text(20, 530, fill="darkblue", font="Helvetica 10 bold",
-                                                              text="Exploration utilisée : Non informée", anchor=NW)
+                                                              text="Exploration utilisée : Informée (A*)", anchor=NW)
 
             self.displayMetric = self.canvas.create_text(20, 650, fill="darkblue", font="Helvetica 10 bold",
                                                          text="Métrique (distance euclidienne à l'objet le plus proche) : " + "{:3.2f}".format(current_robot.get_metric())
