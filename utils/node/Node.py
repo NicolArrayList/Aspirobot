@@ -2,8 +2,11 @@ class Node:
     """A node class for A* Pathfinding"""
 
     def __init__(self, parent=None, position=None, depth=None):
+        # Parent node
         self.parent = parent
+        # Position associated
         self.position = position
+        # Depth in the current branch
         self.depth = depth
 
         # F is the total cost of the node.

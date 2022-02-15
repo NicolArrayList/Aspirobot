@@ -13,35 +13,49 @@ from utils.environment.Room import Room
 class Robot:
     def __init__(self, sensor: RobotSensor, starting_position: list[int],
                  max_depth: int = 5, max_iteration_before_informed_search: int = 5):
+        # Sensors and Actuator attached to our robot
         self.robotSensor = sensor
         self.robotActuator = RobotActuator(sensor.tracked_environment)
+
+        # Information about environment
         self.house: House = None
 
+        # Proper information of robot
         self.position = starting_position
         self.action_plan = []
-
-        self.robotActuator.robot_move(self, self.position)
-
+        self.maxIteration = max_iteration_before_informed_search
+        self.metric = 99
         # UNINFORMED PARAMETERS
         self.max_depth = max_depth
 
+        # Statistics
         self.vacuumedDust = 0
         self.collectedDiamonds = 0
         self.vacuumedDiamonds = 0
-
         self.nbIterations = 0
-        self.maxIteration = max_iteration_before_informed_search
 
-        self.metric = 99
+        # Set the robot position
+        self.robotActuator.robot_move(self, self.position)
 
+    """
+    Method to picture the environment and retrieve information about it
+    -> environment information is accessible via self.house
+    """
     def observe_environment_with_sensor(self) -> None:
+        # Know the environment
         self.house = self.robotSensor.read_environment()
+        # Know its position in environment
         self.position = self.robotSensor.get_robot_position_in_environment(self)
 
+    """
+    Method to explore the environment and find a way to an objective
+    -> based on maxIteration this method use informed or uninformed exploration 
+    """
     def execute_exploration(self) -> None:
 
         closest_target_room = self.get_closest_target()
 
+        # If house is empty, robot stays in his room
         if closest_target_room is None:
             self.action_plan = [self.position]
         else:
@@ -50,14 +64,19 @@ class Robot:
             else:
                 self.action_plan = self.__astar(closest_target_room.get_room_position())
 
-            
+    """
+    This method call the actuator to perform action following the action plan !
+    """
     def execute_action_plan(self):
+        # Robot moves to objective
         for position in self.action_plan:
             self.robotActuator.robot_move(self, position)
             time.sleep(2)
 
+        # Robot knows its position
         self.position = self.robotSensor.get_robot_position_in_environment(self)
 
+        # Robot check his information about the room to perform cleaning or collecting
         if self.house.get_room_at(self.position[0], self.position[1]).has_dust():
             self.robotActuator.aspire(self.position)
             self.vacuumedDust += 1
@@ -72,6 +91,7 @@ class Robot:
     def get_closest_target(self) -> Room:
         closest_target = None
 
+        # Find the closest room which contains something
         for x in range(self.house.get_width()):
             for y in range(self.house.get_height()):
                 if self.house.get_room_at(x, y).has_jewel_or_dust():
@@ -85,6 +105,9 @@ class Robot:
 
         return closest_target
 
+    """
+    Tool method to find the euclidian distance between two rooms
+    """
     def distance_to_room(self, room: Room) -> float:
         room_pos = room.get_room_position()
         # Euclidian distance without square root because distance order is conserved (with positive int)
@@ -110,7 +133,6 @@ class Robot:
     -> depth parameter is the current depth of exploration
     -> visited_nodes is used to avoid nodes we already went in 
     """
-
     def __depth_limited_search_it(self, current_node, visited_nodes, depth):
         # Make sure not to overpass the max depth
         if depth >= self.max_depth:
@@ -129,9 +151,9 @@ class Robot:
                 # Make sure that it's in our environment range, if not skip it
                 if \
                         node_position[0] > (self.house.get_width() - 1) or \
-                        node_position[1] > (self.house.get_height() - 1) or \
-                        node_position[0] < 0 or \
-                        node_position[1] < 0:
+                                node_position[1] > (self.house.get_height() - 1) or \
+                                node_position[0] < 0 or \
+                                node_position[1] < 0:
                     continue
 
                 # Now everything is alright for this node to exist, we create it
@@ -213,9 +235,9 @@ class Robot:
                 # Make sure within range
                 if \
                         node_position[0] > (self.house.get_width() - 1) or \
-                                node_position[1] > (self.house.get_height() - 1) or \
-                                node_position[0] < 0 or \
-                                node_position[1] < 0:
+                        node_position[1] > (self.house.get_height() - 1) or \
+                        node_position[0] < 0 or \
+                        node_position[1] < 0:
                     continue
 
                 # Create new node

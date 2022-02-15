@@ -13,14 +13,21 @@ class Environment:
         self.__house = House(self.__width, self.__height)
         self.__robot_positions = []
 
+        # Randomly sets room with dust or jewel based on the dirty argument
         if dirty:
             dirty_random = random.randint(4, 6)
             for i in range(dirty_random):
                 self.update_environment()
 
+    """
+    This method uses random numbers to find a room and put dust or jewel in it
+    """
     def update_environment(self):
+        # find a random room
         position_x = random.randrange(self.__height)
         position_y = random.randrange(self.__width)
+
+        # find out what dust or jewellery will be in the room
         heads_or_tails = bool(random.getrandbits(1))
 
         if heads_or_tails:
@@ -34,6 +41,9 @@ class Environment:
     def set_jewel_room(self, room_position: (int, int), set_jewel: bool) -> None:
         self.__house.get_room_at(room_position[0], room_position[1]).set_jewel_room(set_jewel)
 
+    """
+    IMPORTANT : This method has been designed to support multiple robots, which is not yet the case
+    """
     def update_robot_positions(self, robot: 'CRobot.Robot', position: list[int]) -> None:
         for it_robot in self.__robot_positions:
             if robot == (it_robot[0]):
