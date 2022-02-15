@@ -1,9 +1,10 @@
-class Node():
+class Node:
     """A node class for A* Pathfinding"""
 
-    def __init__(self, parent=None, position=None):
+    def __init__(self, parent=None, position=None, depth=None):
         self.parent = parent
         self.position = position
+        self.depth = depth
 
         # F is the total cost of the node.
         # G is the distance between the current node and the start node.
@@ -14,3 +15,6 @@ class Node():
 
     def __eq__(self, other):
         return self.position == other.position
+
+    def __hash__(self):
+        return hash(self.position[0]) + hash(self.position[1])

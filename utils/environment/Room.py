@@ -8,7 +8,7 @@ class Room:
         self.__dust = dust
         self.__jewel = jewel
 
-    def get_room_position(self) -> tuple[int, int]:
+    def get_room_position(self) -> tuple:
         return self.__posX, self.__posY
 
     def set_dust_room(self, set_dust_to: bool) -> None:

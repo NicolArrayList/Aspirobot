@@ -113,7 +113,7 @@ class Display:
         self.canvas.delete(self.displayMetric)
 
         # Display type of exploration and the metric
-        if iterationsValue < 5:  # Non Informed exploration (no metric)
+        if iterationsValue < current_robot.maxIteration:  # Non Informed exploration (no metric)
             self.displayExploration = self.canvas.create_text(20, 530, fill="darkblue", font="Helvetica 10 bold",
                                                               text="Exploration utilisée : Non informée (DLS)", anchor=NW)
 
