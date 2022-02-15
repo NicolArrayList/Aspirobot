@@ -1,3 +1,4 @@
+import sys
 import threading
 import time
 import random
@@ -8,14 +9,14 @@ from utils.robot import RobotSensor as CRobotSensor
 from utils.environment import Environment as CEnv
 
 # Environment is global because it exists over anything else
-global env, display
+global env, display, t_env, t_robot, t_display
 
 ROBOT_STARTING_POSITION = [0, 0]
 ENVIRONMENT_WIDTH = 5
 ENVIRONMENT_HEIGHT = 5
 
 def main():
-    global env, display
+    global env, display, t_env, t_robot, t_display
 
     # Create the display window
     display = Display(ENVIRONMENT_WIDTH, ENVIRONMENT_HEIGHT)
@@ -33,6 +34,8 @@ def main():
     t_env.start()
     t_robot.start()
     t_display.start()
+
+    display.get_window().protocol("WM_DELETE_WINDOW", on_closing)
 
     # We have to put this line here to be able to update the grid
     display.get_window().mainloop()
@@ -57,6 +60,13 @@ def main():
     print(path)
 """
 
+
+def on_closing():
+    display.get_window().destroy()
+    t_env.join()
+    t_robot.join()
+    t_display.join()
+    sys.exit(0)
 
 # Here is the robot thread. It is in charge of a single robot living in the environment.
 # So starting multiple threads with that function will make multiple robots living in the same environment !

@@ -1,4 +1,5 @@
 import time
+from math import sqrt
 
 from utils.environment.House import House
 from utils.node.Node import Node
@@ -31,6 +32,8 @@ class Robot:
         self.nbIterations = 0
         self.maxIteration = max_iteration_before_informed_search
 
+        self.metric = 99
+
     def observe_environment_with_sensor(self) -> None:
         self.house = self.robotSensor.read_environment()
         self.position = self.robotSensor.get_robot_position_in_environment(self)
@@ -45,13 +48,9 @@ class Robot:
             if self.nbIterations < self.maxIteration:
                 self.action_plan = self.__depth_limited_search()
             else:
-                closest_target_room = self.get_closest_target()
+                self.action_plan = self.__astar(closest_target_room.get_room_position())
 
-                if closest_target_room is not None:
-                    self.action_plan = self.__astar(closest_target_room.get_room_position())
-                else:
-                    self.action_plan = [self.position]
-
+            
     def execute_action_plan(self):
         for position in self.action_plan:
             self.robotActuator.robot_move(self, position)
@@ -72,6 +71,7 @@ class Robot:
 
     def get_closest_target(self) -> Room:
         closest_target = None
+
         for x in range(self.house.get_width()):
             for y in range(self.house.get_height()):
                 if self.house.get_room_at(x, y).has_jewel_or_dust():
@@ -80,6 +80,9 @@ class Robot:
                         closest_target = current_room
                     elif self.distance_to_room(current_room) <= self.distance_to_room(closest_target):
                         closest_target = current_room
+                        shortest_distance = self.distance_to_room(current_room)
+                        self.metric = sqrt(shortest_distance)
+
         return closest_target
 
     def distance_to_room(self, room: Room) -> float:
@@ -257,3 +260,6 @@ class Robot:
 
     def get_nb_iterations(self):
         return self.nbIterations
+
+    def get_metric(self):
+        return self.metric
